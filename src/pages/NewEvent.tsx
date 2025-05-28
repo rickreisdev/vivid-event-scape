@@ -1,91 +1,89 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CreateEventData } from '@/types/event';
 import EventForm from '@/components/EventForm';
 import Navbar from '@/components/Navbar';
 import AuthModal from '@/components/AuthModal';
+import { useAuth } from '@/hooks/useAuth';
+import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 
 const NewEvent = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, signIn, signUp, signOut } = useAuth();
+  const { createEvent, isCreating } = useEvents();
   
-  const [user, setUser] = useState<any>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    // Verificar se usuário está logado
-    const savedUser = localStorage.getItem('mockUser');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    } else {
+  React.useEffect(() => {
+    // Se não está logado, mostrar modal de autenticação
+    if (!user) {
       setShowAuthModal(true);
     }
-  }, []);
+  }, [user]);
 
   const handleLogin = async (email: string, password: string) => {
-    setIsSubmitting(true);
-    
-    // Simular autenticação
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const mockUser = { email, id: 'user1' };
-    setUser(mockUser);
-    localStorage.setItem('mockUser', JSON.stringify(mockUser));
-    
-    toast({
-      title: "Login realizado com sucesso!",
-      description: `Bem-vindo de volta, ${email}`,
-    });
-    
-    setIsSubmitting(false);
+    try {
+      await signIn(email, password);
+      setShowAuthModal(false);
+      toast({
+        title: "Login realizado com sucesso!",
+        description: `Bem-vindo de volta, ${email}`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro no login",
+        description: error.message || "Erro ao fazer login",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleRegister = async (email: string, password: string) => {
-    setIsSubmitting(true);
-    
-    // Simular registro
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const mockUser = { email, id: 'user1' };
-    setUser(mockUser);
-    localStorage.setItem('mockUser', JSON.stringify(mockUser));
-    
-    toast({
-      title: "Conta criada com sucesso!",
-      description: `Bem-vindo, ${email}`,
-    });
-    
-    setIsSubmitting(false);
+    try {
+      await signUp(email, password);
+      setShowAuthModal(false);
+      toast({
+        title: "Conta criada com sucesso!",
+        description: `Bem-vindo, ${email}`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro no registro",
+        description: error.message || "Erro ao criar conta",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleLogout = () => {
-    setUser(null);
-    localStorage.removeItem('mockUser');
-    navigate('/');
-    toast({
-      title: "Logout realizado",
-      description: "Você foi desconectado com sucesso",
-    });
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate('/');
+      toast({
+        title: "Logout realizado",
+        description: "Você foi desconectado com sucesso",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro no logout",
+        description: error.message || "Erro ao fazer logout",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleCreateEvent = async (eventData: CreateEventData) => {
     if (!user) return;
     
-    setIsSubmitting(true);
-    
-    // Simular criação do evento
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast({
-      title: "Evento criado!",
-      description: "Seu evento foi criado com sucesso",
-    });
-    
-    setIsSubmitting(false);
-    navigate('/');
+    try {
+      await createEvent(eventData);
+      navigate('/');
+    } catch (error) {
+      console.error('Erro ao criar evento:', error);
+    }
   };
 
   const handleCancel = () => {
@@ -120,7 +118,7 @@ const NewEvent = () => {
           }}
           onLogin={handleLogin}
           onRegister={handleRegister}
-          isLoading={isSubmitting}
+          isLoading={false}
         />
       </div>
     );
@@ -137,7 +135,7 @@ const NewEvent = () => {
       <EventForm
         onSubmit={handleCreateEvent}
         onCancel={handleCancel}
-        isLoading={isSubmitting}
+        isLoading={isCreating}
         title="Novo Evento"
       />
     </div>

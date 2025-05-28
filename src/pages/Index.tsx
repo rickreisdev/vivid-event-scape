@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, Filter } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 import { Event } from '@/types/event';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,17 +12,24 @@ import Navbar from '@/components/Navbar';
 import AuthModal from '@/components/AuthModal';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import { useAuth } from '@/hooks/useAuth';
+import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  
-  // Estados principais
-  const [events, setEvents] = useState<Event[]>([]);
-  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, signIn, signUp, signOut } = useAuth();
+  const { 
+    events, 
+    loading, 
+    createEvent, 
+    updateEvent, 
+    deleteEvent,
+    isCreating,
+    isUpdating,
+    isDeleting
+  } = useEvents();
   
   // Estados de interface
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -35,69 +42,7 @@ const Index = () => {
   
   // Estados de filtro e busca
   const [searchTerm, setSearchTerm] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Simulação de dados (será substituído pela integração Supabase)
-  const mockEvents: Event[] = [
-    {
-      id: '1',
-      nome: 'Tech Conference 2024',
-      data: '2024-06-15',
-      descricao: 'Uma conferência incrível sobre as últimas tendências em tecnologia. Palestrantes renomados do mundo inteiro compartilhando conhecimento sobre AI, Web3, e desenvolvimento sustentável.',
-      cidade: 'São Paulo',
-      estado: 'SP',
-      link: 'https://techconf2024.com',
-      user_id: 'user1',
-      created_at: '2024-01-15T10:00:00Z',
-      updated_at: '2024-01-15T10:00:00Z'
-    },
-    {
-      id: '2',
-      nome: 'Festival de Música',
-      data: '2024-07-20',
-      descricao: 'Festival com artistas nacionais e internacionais. Três dias de muita música, gastronomia e entretenimento para toda a família.',
-      cidade: 'Rio de Janeiro',
-      estado: 'RJ',
-      user_id: 'user2',
-      created_at: '2024-01-16T14:30:00Z',
-      updated_at: '2024-01-16T14:30:00Z'
-    },
-    {
-      id: '3',
-      nome: 'Workshop de Design',
-      data: '2024-06-10',
-      descricao: 'Aprenda as melhores práticas de UX/UI Design com profissionais experientes. Inclui atividades práticas e networking.',
-      cidade: 'Belo Horizonte',
-      estado: 'MG',
-      link: 'https://designworkshop.com',
-      user_id: 'user1',
-      created_at: '2024-01-17T09:15:00Z',
-      updated_at: '2024-01-17T09:15:00Z'
-    }
-  ];
-
-  // Simulação de autenticação
-  useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-      
-      // Simular carregamento
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Simular usuário logado (remover quando integrar com Supabase)
-      const savedUser = localStorage.getItem('mockUser');
-      if (savedUser) {
-        setUser(JSON.parse(savedUser));
-      }
-      
-      // Carregar eventos
-      setEvents(mockEvents);
-      setFilteredEvents(mockEvents);
-      setLoading(false);
-    };
-
-    loadData();
-  }, []);
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
 
   // Filtrar eventos
   useEffect(() => {
@@ -114,120 +59,94 @@ const Index = () => {
     }
   }, [searchTerm, events]);
 
-  // Funções de autenticação (mock)
+  // Funções de autenticação
   const handleLogin = async (email: string, password: string) => {
-    setIsSubmitting(true);
-    
-    // Simular autenticação
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const mockUser = { email, id: 'user1' };
-    setUser(mockUser);
-    localStorage.setItem('mockUser', JSON.stringify(mockUser));
-    
-    toast({
-      title: "Login realizado com sucesso!",
-      description: `Bem-vindo de volta, ${email}`,
-    });
-    
-    setIsSubmitting(false);
+    try {
+      await signIn(email, password);
+      setShowAuthModal(false);
+      toast({
+        title: "Login realizado com sucesso!",
+        description: `Bem-vindo de volta, ${email}`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro no login",
+        description: error.message || "Erro ao fazer login",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleRegister = async (email: string, password: string) => {
-    setIsSubmitting(true);
-    
-    // Simular registro
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const mockUser = { email, id: 'user1' };
-    setUser(mockUser);
-    localStorage.setItem('mockUser', JSON.stringify(mockUser));
-    
-    toast({
-      title: "Conta criada com sucesso!",
-      description: `Bem-vindo, ${email}`,
-    });
-    
-    setIsSubmitting(false);
+    try {
+      await signUp(email, password);
+      setShowAuthModal(false);
+      toast({
+        title: "Conta criada com sucesso!",
+        description: `Bem-vindo, ${email}`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro no registro",
+        description: error.message || "Erro ao criar conta",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleLogout = () => {
-    setUser(null);
-    localStorage.removeItem('mockUser');
-    toast({
-      title: "Logout realizado",
-      description: "Você foi desconectado com sucesso",
-    });
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Logout realizado",
+        description: "Você foi desconectado com sucesso",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro no logout",
+        description: error.message || "Erro ao fazer logout",
+        variant: "destructive",
+      });
+    }
   };
 
   // Funções CRUD de eventos
   const handleCreateEvent = async (eventData: any) => {
     if (!user) return;
     
-    setIsSubmitting(true);
-    
-    // Simular criação
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const newEvent: Event = {
-      id: Math.random().toString(36).substr(2, 9),
-      ...eventData,
-      user_id: user.id,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
-    
-    setEvents(prev => [newEvent, ...prev]);
-    setShowEventForm(false);
-    
-    toast({
-      title: "Evento criado!",
-      description: "Seu evento foi criado com sucesso",
-    });
-    
-    setIsSubmitting(false);
+    try {
+      await createEvent(eventData);
+      setShowEventForm(false);
+    } catch (error) {
+      console.error('Erro ao criar evento:', error);
+    }
   };
 
   const handleUpdateEvent = async (eventData: any) => {
     if (!editingEvent || !user) return;
     
-    setIsSubmitting(true);
-    
-    // Simular atualização
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const updatedEvent: Event = {
-      ...editingEvent,
-      ...eventData,
-      updated_at: new Date().toISOString()
-    };
-    
-    setEvents(prev => prev.map(event => 
-      event.id === editingEvent.id ? updatedEvent : event
-    ));
-    
-    setEditingEvent(null);
-    setShowEventForm(false);
-    
-    toast({
-      title: "Evento atualizado!",
-      description: "As alterações foram salvas com sucesso",
-    });
-    
-    setIsSubmitting(false);
+    try {
+      await updateEvent({
+        id: editingEvent.id,
+        ...eventData,
+      });
+      setEditingEvent(null);
+      setShowEventForm(false);
+    } catch (error) {
+      console.error('Erro ao atualizar evento:', error);
+    }
   };
 
   const handleDeleteEvent = async () => {
     if (!eventToDelete || !user) return;
     
-    setEvents(prev => prev.filter(event => event.id !== eventToDelete.id));
-    setShowDeleteConfirm(false);
-    setEventToDelete(null);
-    
-    toast({
-      title: "Evento excluído",
-      description: "O evento foi removido com sucesso",
-    });
+    try {
+      await deleteEvent(eventToDelete.id);
+      setShowDeleteConfirm(false);
+      setEventToDelete(null);
+    } catch (error) {
+      console.error('Erro ao excluir evento:', error);
+    }
   };
 
   // Handlers de interface
@@ -375,7 +294,7 @@ const Index = () => {
             setEditingEvent(null);
           }}
           initialData={editingEvent || undefined}
-          isLoading={isSubmitting}
+          isLoading={isCreating || isUpdating}
           title={editingEvent ? 'Editar Evento' : 'Novo Evento'}
         />
       )}
@@ -385,7 +304,7 @@ const Index = () => {
         onClose={() => setShowAuthModal(false)}
         onLogin={handleLogin}
         onRegister={handleRegister}
-        isLoading={isSubmitting}
+        isLoading={false}
       />
 
       <ConfirmDialog

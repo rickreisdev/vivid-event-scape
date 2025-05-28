@@ -20,7 +20,7 @@ export type Database = {
           link: string | null
           nome: string
           updated_at: string | null
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           cidade: string
@@ -32,7 +32,7 @@ export type Database = {
           link?: string | null
           nome: string
           updated_at?: string | null
-          user_id?: string | null
+          user_id?: string
         }
         Update: {
           cidade?: string
@@ -44,7 +44,7 @@ export type Database = {
           link?: string | null
           nome?: string
           updated_at?: string | null
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
