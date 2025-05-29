@@ -91,6 +91,21 @@
     @apply bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500;
   }
   
+  .gradient-bg {
+    @apply bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative;
+  }
+  
+  .gradient-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 50%, rgba(236, 72, 153, 0.1) 100%);
+    pointer-events: none;
+  }
+  
   .event-card-hover {
     @apply transition-all duration-300 hover:scale-105 hover:shadow-xl;
   }
