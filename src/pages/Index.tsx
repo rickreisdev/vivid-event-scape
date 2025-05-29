@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search } from 'lucide-react';
 import { Event } from '@/types/event';
@@ -29,6 +29,9 @@ const Index = () => {
     isUpdating,
     isDeleting
   } = useEvents();
+  
+  // Ref para o formulário de evento
+  const eventFormRef = useRef<HTMLDivElement>(null);
   
   // Estados de interface
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -160,6 +163,14 @@ const Index = () => {
     setEditingEvent(event);
     setShowEventForm(true);
     setShowEventDetail(false);
+    
+    // Scroll para o formulário após um pequeno delay para garantir que o formulário foi renderizado
+    setTimeout(() => {
+      eventFormRef.current?.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    }, 100);
   };
 
   const handleDeleteConfirm = (event: Event) => {
@@ -177,6 +188,14 @@ const Index = () => {
     }
     setEditingEvent(null);
     setShowEventForm(true);
+    
+    // Scroll para o formulário após um pequeno delay
+    setTimeout(() => {
+      eventFormRef.current?.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    }, 100);
   };
 
   if (loading) {
@@ -287,6 +306,7 @@ const Index = () => {
 
       {showEventForm && (
         <EventForm
+          ref={eventFormRef}
           onSubmit={editingEvent ? handleUpdateEvent : handleCreateEvent}
           onCancel={() => {
             setShowEventForm(false);

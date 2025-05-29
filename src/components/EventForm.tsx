@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,13 +15,13 @@ interface EventFormProps {
   title?: string;
 }
 
-const EventForm: React.FC<EventFormProps> = ({ 
+const EventForm = forwardRef<HTMLDivElement, EventFormProps>(({ 
   onSubmit, 
   onCancel, 
   initialData, 
   isLoading = false,
   title = "Novo Evento"
-}) => {
+}, ref) => {
   const [formData, setFormData] = useState<CreateEventData>({
     nome: '',
     data: '',
@@ -94,7 +93,7 @@ const EventForm: React.FC<EventFormProps> = ({
   };
 
   return (
-    <div className="min-h-screen pt-20 pb-10 px-4">
+    <div ref={ref} className="min-h-screen pt-20 pb-10 px-4">
       <div className="max-w-2xl mx-auto">
         <Card className="glass-effect border-white/20 shadow-xl">
           <CardHeader className="text-center">
@@ -233,6 +232,8 @@ const EventForm: React.FC<EventFormProps> = ({
       </div>
     </div>
   );
-};
+});
+
+EventForm.displayName = 'EventForm';
 
 export default EventForm;
