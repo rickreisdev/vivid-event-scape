@@ -1,74 +1,41 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Plus, Search } from 'lucide-react';
-import { Event } from '@/types/event';
+import React, { useState, useEffect } from 'react';
+import { Plus, Calendar, MapPin, User, LogIn, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import EventCard from '@/components/EventCard';
-import EventDetail from '@/components/EventDetail';
-import EventForm from '@/components/EventForm';
-import Navbar from '@/components/Navbar';
-import AuthModal from '@/components/AuthModal';
-import LoadingSpinner from '@/components/LoadingSpinner';
-import ConfirmDialog from '@/components/ConfirmDialog';
 import { useAuth } from '@/hooks/useAuth';
 import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
+import EventCard from '@/components/EventCard';
+import EventDetail from '@/components/EventDetail';
+import EventForm from '@/components/EventForm';
+import AuthModal from '@/components/AuthModal';
+import ConfirmDialog from '@/components/ConfirmDialog';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import { Event, CreateEventData, UpdateEventData } from '@/types/event';
+import { Link } from 'react-router-dom';
 
 const Index = () => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const { user, signIn, signUp, signOut } = useAuth();
-  const { 
-    events, 
-    loading, 
-    createEvent, 
-    updateEvent, 
-    deleteEvent,
-    isCreating,
-    isUpdating,
-    isDeleting
-  } = useEvents();
-  
-  // Ref para o formulário de evento
-  const eventFormRef = useRef<HTMLDivElement>(null);
-  
-  // Estados de interface
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
-  const [showEventDetail, setShowEventDetail] = useState(false);
-  const [showEventForm, setShowEventForm] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
+
+  const { toast } = useToast();
+  const { user, profile, signIn, signUp, signOut } = useAuth();
+  const { events, loading, createEvent, updateEvent, deleteEvent, isCreating, isUpdating, isDeleting } = useEvents();
   
-  // Estados de filtro e busca
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
 
-  // Filtrar eventos
   useEffect(() => {
-    if (!searchTerm) {
-      setFilteredEvents(events);
-    } else {
-      const filtered = events.filter(event =>
-        event.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.cidade.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.estado.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.descricao.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setFilteredEvents(filtered);
-    }
-  }, [searchTerm, events]);
+    document.title = 'EventosBR - Encontre os melhores eventos perto de você';
+  }, []);
 
-  // Funções de autenticação
   const handleLogin = async (email: string, password: string) => {
     try {
       await signIn(email, password);
       setShowAuthModal(false);
       toast({
         title: "Login realizado com sucesso!",
-        description: `Bem-vindo de volta, ${email}`,
+        description: `Bem-vindo de volta${profile?.name ? `, ${profile.name}` : ''}`,
       });
     } catch (error: any) {
       toast({
@@ -79,13 +46,13 @@ const Index = () => {
     }
   };
 
-  const handleRegister = async (email: string, password: string) => {
+  const handleRegister = async (email: string, password: string, name: string) => {
     try {
-      await signUp(email, password);
+      await signUp(email, password, name);
       setShowAuthModal(false);
       toast({
         title: "Conta criada com sucesso!",
-        description: `Bem-vindo, ${email}`,
+        description: `Bem-vindo, ${name}!`,
       });
     } catch (error: any) {
       toast({
@@ -112,212 +79,212 @@ const Index = () => {
     }
   };
 
-  // Funções CRUD de eventos
-  const handleCreateEvent = async (eventData: any) => {
-    if (!user) return;
-    
-    try {
-      await createEvent(eventData);
-      setShowEventForm(false);
-    } catch (error) {
-      console.error('Erro ao criar evento:', error);
-    }
+  const handleEditEvent = (event: Event) => {
+    setSelectedEvent(null);
+    setEditingEvent(event);
   };
 
-  const handleUpdateEvent = async (eventData: any) => {
-    if (!editingEvent || !user) return;
+  const handleUpdateEvent = async (eventData: CreateEventData) => {
+    if (!editingEvent) return;
     
     try {
-      await updateEvent({
+      const updateData: UpdateEventData = {
         id: editingEvent.id,
-        ...eventData,
-      });
+        ...eventData
+      };
+      await updateEvent(updateData);
       setEditingEvent(null);
-      setShowEventForm(false);
     } catch (error) {
       console.error('Erro ao atualizar evento:', error);
     }
   };
 
-  const handleDeleteEvent = async () => {
-    if (!eventToDelete || !user) return;
+  const handleCancelEdit = () => {
+    setEditingEvent(null);
+  };
+
+  const handleDeleteClick = (event: Event) => {
+    setEventToDelete(event);
+    setShowDeleteDialog(true);
+    setSelectedEvent(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!eventToDelete) return;
     
     try {
       await deleteEvent(eventToDelete.id);
-      setShowDeleteConfirm(false);
+      setShowDeleteDialog(false);
       setEventToDelete(null);
     } catch (error) {
       console.error('Erro ao excluir evento:', error);
     }
   };
 
-  // Handlers de interface
-  const handleViewEvent = (event: Event) => {
-    setSelectedEvent(event);
-    setShowEventDetail(true);
-  };
-
-  const handleEditEvent = (event: Event) => {
-    if (!user || event.user_id !== user.id) return;
-    
-    setEditingEvent(event);
-    setShowEventForm(true);
-    setShowEventDetail(false);
-    
-    // Scroll para o formulário após um pequeno delay para garantir que o formulário foi renderizado
-    setTimeout(() => {
-      eventFormRef.current?.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'start' 
-      });
-    }, 100);
-  };
-
-  const handleDeleteConfirm = (event: Event) => {
-    if (!user || event.user_id !== user.id) return;
-    
-    setEventToDelete(event);
-    setShowDeleteConfirm(true);
-    setShowEventDetail(false);
-  };
-
-  const handleNewEvent = () => {
-    if (!user) {
-      setShowAuthModal(true);
-      return;
-    }
-    setEditingEvent(null);
-    setShowEventForm(true);
-    
-    // Scroll para o formulário após um pequeno delay
-    setTimeout(() => {
-      eventFormRef.current?.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'start' 
-      });
-    }, 100);
+  const handleCancelDelete = () => {
+    setShowDeleteDialog(false);
+    setEventToDelete(null);
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen">
-        <Navbar 
-          user={user} 
-          onLogout={handleLogout}
-          onLoginClick={() => setShowAuthModal(true)}
-        />
-        <LoadingSpinner />
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   return (
-    <div className="min-h-screen">
-      <Navbar 
-        user={user} 
-        onLogout={handleLogout}
-        onLoginClick={() => setShowAuthModal(true)}
-      />
-
-      <main className="pt-20 pb-10 px-4">
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-8 sm:mb-12">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight">
-              Descubra Eventos Incríveis
-            </h1>
-            <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto px-4">
-              Encontre e participe dos melhores eventos da sua região
-            </p>
-          </div>
-
-          {/* Barra de busca e ações */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-8 items-stretch sm:items-center">
-            <div className="relative flex-1 max-w-full sm:max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Buscar eventos, cidades..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-white/80 backdrop-blur-sm border-white/20 h-11"
-              />
+    <div className="min-h-screen gradient-bg">
+      {/* Header */}
+      <header className="bg-white/80 backdrop-blur-md border-b border-white/20 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-4">
+              <Calendar className="h-8 w-8 text-indigo-600" />
+              <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                EventosBR
+              </h1>
             </div>
             
-            <Button
-              onClick={handleNewEvent}
-              className="event-gradient text-white hover:opacity-90 transition-opacity h-11 px-6"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Novo Evento
-            </Button>
-          </div>
-
-          {/* Lista de eventos */}
-          {filteredEvents.length === 0 ? (
-            <div className="text-center py-16 px-4">
-              <div className="w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-6 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center">
-                <Search className="h-12 w-12 sm:h-16 sm:w-16 text-indigo-400" />
-              </div>
-              <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-2">
-                {searchTerm ? 'Nenhum evento encontrado' : 'Nenhum evento disponível'}
-              </h3>
-              <p className="text-gray-500 mb-6 text-sm sm:text-base max-w-md mx-auto">
-                {searchTerm 
-                  ? 'Tente ajustar sua busca ou limpar os filtros'
-                  : 'Seja o primeiro a criar um evento incrível!'
-                }
-              </p>
-              {!searchTerm && (
-                <Button 
-                  onClick={handleNewEvent}
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              {user ? (
+                <>
+                  <span className="hidden sm:block text-sm text-gray-600">
+                    Olá, {profile?.name || user.email}
+                  </span>
+                  <Link to="/novo-evento">
+                    <Button size="sm" className="event-gradient text-white hover:opacity-90 transition-opacity">
+                      <Plus className="h-4 w-4 mr-1 sm:mr-2" />
+                      <span className="hidden sm:inline">Novo Evento</span>
+                      <span className="sm:hidden">Novo</span>
+                    </Button>
+                  </Link>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleLogout}
+                    className="text-gray-600 border-gray-300 hover:bg-gray-50"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span className="hidden sm:inline ml-2">Sair</span>
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  size="sm"
+                  onClick={() => setShowAuthModal(true)}
                   className="event-gradient text-white hover:opacity-90 transition-opacity"
                 >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Criar Primeiro Evento
+                  <LogIn className="h-4 w-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Entrar</span>
+                  <span className="sm:hidden">Login</span>
                 </Button>
               )}
             </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section className="relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-24">
+          <div className="text-center">
+            <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight">
+              Descubra Eventos
+              <span className="block bg-gradient-to-r from-yellow-400 to-pink-400 bg-clip-text text-transparent">
+                Incríveis
+              </span>
+            </h2>
+            <p className="text-lg sm:text-xl text-white/90 mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed px-4">
+              Conecte-se com experiências únicas e encontre eventos que transformam momentos em memórias inesquecíveis
+            </p>
+            
+            {!user && (
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-4">
+                <Button
+                  size="lg"
+                  onClick={() => setShowAuthModal(true)}
+                  className="w-full sm:w-auto event-gradient text-white hover:opacity-90 transition-opacity shadow-lg"
+                >
+                  <User className="h-5 w-5 mr-2" />
+                  Começar Agora
+                </Button>
+                <p className="text-sm text-white/70">
+                  Faça login para criar e gerenciar seus eventos
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+        
+        {/* Floating elements for visual appeal */}
+        <div className="absolute top-20 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl"></div>
+        <div className="absolute bottom-20 right-10 w-32 h-32 bg-purple-400/20 rounded-full blur-xl"></div>
+      </section>
+
+      {/* Events Section */}
+      <section className="py-8 sm:py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8 sm:mb-12">
+            <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3 sm:mb-4">
+              Eventos em Destaque
+            </h3>
+            <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto">
+              Explore uma seleção cuidadosa de eventos que prometem experiências extraordinárias
+            </p>
+          </div>
+
+          {events.length === 0 ? (
+            <div className="text-center py-12 sm:py-16">
+              <Calendar className="h-16 w-16 sm:h-24 sm:w-24 text-white/30 mx-auto mb-4 sm:mb-6" />
+              <h4 className="text-lg sm:text-xl font-semibold text-white mb-2 sm:mb-4">
+                Nenhum evento encontrado
+              </h4>
+              <p className="text-white/70 mb-6 sm:mb-8 max-w-md mx-auto px-4">
+                Seja o primeiro a compartilhar um evento incrível com nossa comunidade!
+              </p>
+              {user && (
+                <Link to="/novo-evento">
+                  <Button className="event-gradient text-white hover:opacity-90 transition-opacity">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Criar Primeiro Evento
+                  </Button>
+                </Link>
+              )}
+            </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {filteredEvents.map((event) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+              {events.map((event) => (
                 <EventCard
                   key={event.id}
                   event={event}
-                  onView={handleViewEvent}
-                  onEdit={handleEditEvent}
-                  onDelete={handleDeleteConfirm}
-                  canEdit={user && event.user_id === user.id}
+                  onClick={() => setSelectedEvent(event)}
                 />
               ))}
             </div>
           )}
         </div>
-      </main>
+      </section>
 
-      {/* Modais */}
+      {/* Event Detail Modal */}
       <EventDetail
         event={selectedEvent}
-        isOpen={showEventDetail}
-        onClose={() => setShowEventDetail(false)}
+        isOpen={!!selectedEvent}
+        onClose={() => setSelectedEvent(null)}
         onEdit={handleEditEvent}
-        onDelete={handleDeleteConfirm}
-        canEdit={user && selectedEvent?.user_id === user.id}
+        onDelete={handleDeleteClick}
+        canEdit={user?.id === selectedEvent?.user_id}
       />
 
-      {showEventForm && (
+      {/* Edit Event Form */}
+      {editingEvent && (
         <EventForm
-          ref={eventFormRef}
-          onSubmit={editingEvent ? handleUpdateEvent : handleCreateEvent}
-          onCancel={() => {
-            setShowEventForm(false);
-            setEditingEvent(null);
-          }}
-          initialData={editingEvent || undefined}
-          isLoading={isCreating || isUpdating}
-          title={editingEvent ? 'Editar Evento' : 'Novo Evento'}
+          onSubmit={handleUpdateEvent}
+          onCancel={handleCancelEdit}
+          initialData={editingEvent}
+          isLoading={isUpdating}
+          title="Editar Evento"
         />
       )}
 
+      {/* Auth Modal */}
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
@@ -326,14 +293,14 @@ const Index = () => {
         isLoading={false}
       />
 
+      {/* Delete Confirmation Dialog */}
       <ConfirmDialog
-        isOpen={showDeleteConfirm}
-        onClose={() => setShowDeleteConfirm(false)}
-        onConfirm={handleDeleteEvent}
+        isOpen={showDeleteDialog}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
         title="Excluir Evento"
         description={`Tem certeza que deseja excluir o evento "${eventToDelete?.nome}"? Esta ação não pode ser desfeita.`}
-        confirmText="Excluir"
-        isDestructive
+        isLoading={isDeleting}
       />
     </div>
   );

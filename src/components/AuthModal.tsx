@@ -5,13 +5,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Mail, Lock, UserPlus, LogIn } from 'lucide-react';
+import { Mail, Lock, UserPlus, LogIn, User } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   onLogin: (email: string, password: string) => Promise<void>;
-  onRegister: (email: string, password: string) => Promise<void>;
+  onRegister: (email: string, password: string, name: string) => Promise<void>;
   isLoading?: boolean;
 }
 
@@ -25,12 +25,14 @@ const AuthModal: React.FC<AuthModalProps> = ({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [name, setName] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const resetForm = () => {
     setEmail('');
     setPassword('');
     setConfirmPassword('');
+    setName('');
     setErrors({});
   };
 
@@ -53,6 +55,10 @@ const AuthModal: React.FC<AuthModalProps> = ({
 
   const validateRegister = () => {
     const newErrors: Record<string, string> = {};
+
+    if (!name.trim()) {
+      newErrors.name = 'Nome é obrigatório';
+    }
 
     if (!email.trim()) {
       newErrors.email = 'Email é obrigatório';
@@ -93,7 +99,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
     
     if (validateRegister()) {
       try {
-        await onRegister(email, password);
+        await onRegister(email, password, name);
         resetForm();
         onClose();
       } catch (error) {
@@ -178,6 +184,22 @@ const AuthModal: React.FC<AuthModalProps> = ({
 
           <TabsContent value="register" className="space-y-4 mt-6">
             <form onSubmit={handleRegister} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="register-name" className="flex items-center text-gray-700">
+                  <User className="h-4 w-4 mr-2" />
+                  Nome
+                </Label>
+                <Input
+                  id="register-name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Seu nome completo"
+                  className={errors.name ? 'border-red-300' : ''}
+                />
+                {errors.name && <p className="text-sm text-red-600">{errors.name}</p>}
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="register-email" className="flex items-center text-gray-700">
                   <Mail className="h-4 w-4 mr-2" />

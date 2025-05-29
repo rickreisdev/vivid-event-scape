@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CreateEventData } from '@/types/event';
@@ -12,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 const NewEvent = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, signIn, signUp, signOut } = useAuth();
+  const { user, profile, signIn, signUp, signOut } = useAuth();
   const { createEvent, isCreating } = useEvents();
   
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -30,7 +29,7 @@ const NewEvent = () => {
       setShowAuthModal(false);
       toast({
         title: "Login realizado com sucesso!",
-        description: `Bem-vindo de volta, ${email}`,
+        description: `Bem-vindo de volta${profile?.name ? `, ${profile.name}` : ''}`,
       });
     } catch (error: any) {
       toast({
@@ -41,13 +40,13 @@ const NewEvent = () => {
     }
   };
 
-  const handleRegister = async (email: string, password: string) => {
+  const handleRegister = async (email: string, password: string, name: string) => {
     try {
-      await signUp(email, password);
+      await signUp(email, password, name);
       setShowAuthModal(false);
       toast({
         title: "Conta criada com sucesso!",
-        description: `Bem-vindo, ${email}`,
+        description: `Bem-vindo, ${name}!`,
       });
     } catch (error: any) {
       toast({
@@ -95,6 +94,7 @@ const NewEvent = () => {
       <div className="min-h-screen">
         <Navbar 
           user={user} 
+          userDisplayName={profile?.name}
           onLogout={handleLogout}
           onLoginClick={() => setShowAuthModal(true)}
         />
@@ -128,6 +128,7 @@ const NewEvent = () => {
     <div className="min-h-screen">
       <Navbar 
         user={user} 
+        userDisplayName={profile?.name}
         onLogout={handleLogout}
         onLoginClick={() => setShowAuthModal(true)}
       />
