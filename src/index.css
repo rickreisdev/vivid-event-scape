@@ -98,4 +98,31 @@
   .glass-effect {
     @apply bg-white/80 backdrop-blur-sm;
   }
+
+  /* Mobile-specific utilities */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* Mobile touch improvements */
+@media (max-width: 768px) {
+  .event-card-hover {
+    @apply hover:scale-100;
+  }
+  
+  /* Better touch targets */
+  button, .cursor-pointer {
+    @apply min-h-[44px];
+  }
 }

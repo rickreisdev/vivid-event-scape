@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search } from 'lucide-react';
@@ -204,30 +203,30 @@ const Index = () => {
       <main className="pt-20 pb-10 px-4">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <div className="text-center mb-8 sm:mb-12">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight">
               Descubra Eventos Incríveis
             </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto px-4">
               Encontre e participe dos melhores eventos da sua região
             </p>
           </div>
 
           {/* Barra de busca e ações */}
-          <div className="flex flex-col md:flex-row gap-4 mb-8 items-center">
-            <div className="relative flex-1 max-w-md">
+          <div className="flex flex-col sm:flex-row gap-4 mb-8 items-stretch sm:items-center">
+            <div className="relative flex-1 max-w-full sm:max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
                 placeholder="Buscar eventos, cidades..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-white/80 backdrop-blur-sm border-white/20"
+                className="pl-10 bg-white/80 backdrop-blur-sm border-white/20 h-11"
               />
             </div>
             
             <Button
               onClick={handleNewEvent}
-              className="event-gradient text-white hover:opacity-90 transition-opacity whitespace-nowrap"
+              className="event-gradient text-white hover:opacity-90 transition-opacity h-11 px-6"
             >
               <Plus className="h-4 w-4 mr-2" />
               Novo Evento
@@ -236,14 +235,14 @@ const Index = () => {
 
           {/* Lista de eventos */}
           {filteredEvents.length === 0 ? (
-            <div className="text-center py-16">
-              <div className="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center">
-                <Search className="h-16 w-16 text-indigo-400" />
+            <div className="text-center py-16 px-4">
+              <div className="w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-6 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center">
+                <Search className="h-12 w-12 sm:h-16 sm:w-16 text-indigo-400" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-2">
                 {searchTerm ? 'Nenhum evento encontrado' : 'Nenhum evento disponível'}
               </h3>
-              <p className="text-gray-500 mb-6">
+              <p className="text-gray-500 mb-6 text-sm sm:text-base max-w-md mx-auto">
                 {searchTerm 
                   ? 'Tente ajustar sua busca ou limpar os filtros'
                   : 'Seja o primeiro a criar um evento incrível!'
@@ -260,7 +259,7 @@ const Index = () => {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {filteredEvents.map((event) => (
                 <EventCard
                   key={event.id}

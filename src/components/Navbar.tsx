@@ -1,8 +1,14 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, Plus, LogOut, User, LogIn } from 'lucide-react';
+import { Calendar, Plus, LogOut, User, LogIn, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface NavbarProps {
   user: any;
@@ -16,13 +22,14 @@ const Navbar: React.FC<NavbarProps> = ({ user, onLogout, onLoginClick }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center space-x-2 text-indigo-600 hover:text-indigo-700 transition-colors">
-            <Calendar className="h-8 w-8" />
-            <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            <Calendar className="h-6 w-6 sm:h-8 sm:w-8" />
+            <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
               EventManager
             </span>
           </Link>
 
-          <div className="flex items-center space-x-4">
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center space-x-4">
             <Link to="/">
               <Button variant="ghost" className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50">
                 <Calendar className="h-4 w-4 mr-2" />
@@ -41,7 +48,7 @@ const Navbar: React.FC<NavbarProps> = ({ user, onLogout, onLoginClick }) => {
                 
                 <div className="flex items-center space-x-2 text-sm text-gray-600">
                   <User className="h-4 w-4" />
-                  <span>{user.email}</span>
+                  <span className="max-w-32 truncate">{user.email}</span>
                 </div>
                 
                 <Button 
@@ -62,6 +69,51 @@ const Navbar: React.FC<NavbarProps> = ({ user, onLogout, onLoginClick }) => {
                 Login
               </Button>
             )}
+          </div>
+
+          {/* Mobile Menu */}
+          <div className="md:hidden">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="p-2">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 bg-white">
+                <DropdownMenuItem asChild>
+                  <Link to="/" className="flex items-center w-full">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Eventos
+                  </Link>
+                </DropdownMenuItem>
+                
+                {user ? (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link to="/novo-evento" className="flex items-center w-full">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Novo Evento
+                      </Link>
+                    </DropdownMenuItem>
+                    
+                    <DropdownMenuItem disabled>
+                      <User className="h-4 w-4 mr-2" />
+                      <span className="truncate">{user.email}</span>
+                    </DropdownMenuItem>
+                    
+                    <DropdownMenuItem onClick={onLogout} className="text-red-600">
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Logout
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <DropdownMenuItem onClick={onLoginClick}>
+                    <LogIn className="h-4 w-4 mr-2" />
+                    Login
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
