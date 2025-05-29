@@ -255,7 +255,10 @@ const Index = () => {
                 <EventCard
                   key={event.id}
                   event={event}
-                  onClick={() => setSelectedEvent(event)}
+                  onView={() => setSelectedEvent(event)}
+                  onEdit={handleEditEvent}
+                  onDelete={handleDeleteClick}
+                  canEdit={user?.id === event.user_id}
                 />
               ))}
             </div>
@@ -296,11 +299,13 @@ const Index = () => {
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog
         isOpen={showDeleteDialog}
+        onClose={handleCancelDelete}
         onConfirm={handleConfirmDelete}
-        onCancel={handleCancelDelete}
         title="Excluir Evento"
         description={`Tem certeza que deseja excluir o evento "${eventToDelete?.nome}"? Esta ação não pode ser desfeita.`}
-        isLoading={isDeleting}
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        isDestructive={true}
       />
     </div>
   );

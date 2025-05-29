@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CreateEventData } from '@/types/event';
@@ -94,7 +95,6 @@ const NewEvent = () => {
       <div className="min-h-screen">
         <Navbar 
           user={user} 
-          userDisplayName={profile?.name}
           onLogout={handleLogout}
           onLoginClick={() => setShowAuthModal(true)}
         />
@@ -128,7 +128,6 @@ const NewEvent = () => {
     <div className="min-h-screen">
       <Navbar 
         user={user} 
-        userDisplayName={profile?.name}
         onLogout={handleLogout}
         onLoginClick={() => setShowAuthModal(true)}
       />
