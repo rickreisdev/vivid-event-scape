@@ -116,14 +116,7 @@ const EventDetail: React.FC<EventDetailProps> = ({
             </div>
           )}
 
-          {/* <div className="pt-4 border-t border-gray-200">
-            <p className="text-xs text-gray-500 leading-relaxed">
-              Criado em {new Date(event.created_at).toLocaleDateString('pt-BR')}
-              {event.updated_at !== event.created_at && (
-                <span> • Atualizado em {new Date(event.updated_at).toLocaleDateString('pt-BR')}</span>
-              )}
-            </p>
-          </div> */}
+
         <div className="pt-4 border-t border-gray-200">
           <p className="text-xs text-gray-500 leading-relaxed">
             Criado em {new Date(event.created_at).toLocaleDateString('pt-BR')}

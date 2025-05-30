@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Calendar, MapPin, User, LogIn, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
@@ -14,6 +14,7 @@ import { Event, CreateEventData, UpdateEventData } from '@/types/event';
 import { Link } from 'react-router-dom';
 
 const Index = () => {
+  const editFormRef = useRef<HTMLDivElement>(null);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -82,6 +83,9 @@ const Index = () => {
   const handleEditEvent = (event: Event) => {
     setSelectedEvent(null);
     setEditingEvent(event);
+    setTimeout(() => {
+      editFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
   };
 
   const handleUpdateEvent = async (eventData: CreateEventData) => {
@@ -160,7 +164,7 @@ const Index = () => {
                     size="sm"
                     variant="outline"
                     onClick={handleLogout}
-                    className="text-gray-300 border-gray-600 hover:bg-white/10 hover:text-white"
+                    className="text-gray-300 logout-gradient border-gray-600 hover:bg-white/10 hover:text-white"
                   >
                     <LogOut className="h-4 w-4" />
                     <span className="hidden sm:inline ml-2">Sair</span>
@@ -193,7 +197,7 @@ const Index = () => {
               </span>
             </h2>
             <p className="text-lg sm:text-xl text-gray-200 mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed px-4 drop-shadow-md">
-              Conecte-se com experiências únicas e encontre eventos que transformam momentos em memórias inesquecíveis
+              Conecte-se com experiências únicas e encontre eventos que transformam momentos em memórias inesquecíveis!
             </p>
             
             {!user && (
@@ -279,13 +283,15 @@ const Index = () => {
 
       {/* Edit Event Form */}
       {editingEvent && (
-        <EventForm
-          onSubmit={handleUpdateEvent}
-          onCancel={handleCancelEdit}
-          initialData={editingEvent}
-          isLoading={isUpdating}
-          title="Editar Evento"
-        />
+        <div ref={editFormRef}>
+          <EventForm
+            onSubmit={handleUpdateEvent}
+            onCancel={handleCancelEdit}
+            initialData={editingEvent}
+            isLoading={isUpdating}
+            title="Editar Evento"
+          />
+        </div>
       )}
 
       {/* Auth Modal */}

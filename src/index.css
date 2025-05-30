@@ -90,6 +90,11 @@
   .event-gradient {
     @apply bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500;
   }
+
+  .logout-gradient {
+    @apply bg-gradient-to-r from-rose-500 via-red-500 to-orange-400;
+  }
+  
   
   .gradient-bg {
     @apply bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative;

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,6 +26,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
   const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [currentTab, setCurrentTab] = useState('login');
 
   const resetForm = () => {
     setEmail('');
@@ -118,11 +118,11 @@ const AuthModal: React.FC<AuthModalProps> = ({
       <DialogContent className="max-w-md glass-effect border-white/20">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            Acesse sua conta
+            {currentTab === 'login' ? 'Acesse sua conta' : 'Crie sua conta'}
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs defaultValue="login" className="w-full">
+        <Tabs defaultValue="login" className="w-full" onValueChange={setCurrentTab}>
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="login">Login</TabsTrigger>
             <TabsTrigger value="register">Cadastro</TabsTrigger>

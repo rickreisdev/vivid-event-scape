@@ -1,6 +1,6 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import { Calendar, Plus, LogOut, User, LogIn, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,12 +11,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 interface NavbarProps {
-  user: any;
-  onLogout: () => void;
   onLoginClick: () => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ user, onLogout, onLoginClick }) => {
+const Navbar: React.FC<NavbarProps> = ({ onLoginClick }) => {
+  const { user, profile, signOut } = useAuth();
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass-effect border-b border-white/20 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -24,7 +24,7 @@ const Navbar: React.FC<NavbarProps> = ({ user, onLogout, onLoginClick }) => {
           <Link to="/" className="flex items-center space-x-2 text-indigo-600 hover:text-indigo-700 transition-colors">
             <Calendar className="h-6 w-6 sm:h-8 sm:w-8" />
             <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              EventManager
+            EventosBR
             </span>
           </Link>
 
@@ -48,16 +48,16 @@ const Navbar: React.FC<NavbarProps> = ({ user, onLogout, onLoginClick }) => {
                 
                 <div className="flex items-center space-x-2 text-sm text-gray-600">
                   <User className="h-4 w-4" />
-                  <span className="max-w-32 truncate">{user.email}</span>
+                  <span className="max-w-32 truncate">{profile?.name || 'Usuário'}</span>
                 </div>
                 
                 <Button 
                   variant="outline" 
-                  onClick={onLogout}
+                  onClick={signOut}
                   className="text-red-600 border-red-200 hover:bg-red-50"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
-                  Logout
+                  Sair
                 </Button>
               </>
             ) : (
@@ -98,12 +98,12 @@ const Navbar: React.FC<NavbarProps> = ({ user, onLogout, onLoginClick }) => {
                     
                     <DropdownMenuItem disabled>
                       <User className="h-4 w-4 mr-2" />
-                      <span className="truncate">{user.email}</span>
+                      <span className="truncate">{profile?.name || 'Usuário'}</span>
                     </DropdownMenuItem>
                     
-                    <DropdownMenuItem onClick={onLogout} className="text-red-600">
+                    <DropdownMenuItem onClick={signOut} className="text-red-600">
                       <LogOut className="h-4 w-4 mr-2" />
-                      Logout
+                      Sair
                     </DropdownMenuItem>
                   </>
                 ) : (
