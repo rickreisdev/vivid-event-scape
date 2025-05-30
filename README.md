@@ -43,3 +43,61 @@ Este projeto foi construído com as seguintes tecnologias e ferramentas:
 - Cursor (IDE)
 - ChatGPT
 - Claude (Engenharia de Prompts)
+
+## Configuração do Ambiente
+
+### Variáveis de Ambiente
+
+1. Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+```env
+VITE_SUPABASE_URL=sua_url_do_projeto
+VITE_SUPABASE_ANON_KEY=sua_chave_anon
+```
+
+Para obter estes valores:
+1. Acesse o painel do Supabase
+2. Navegue até Project Settings -> API
+3. Copie os valores de "Project URL" e "anon public" para as respectivas variáveis
+
+### Configuração do Banco de Dados
+
+No Supabase, você precisará criar duas tabelas: `eventos` e `profiles`. Execute os seguintes comandos SQL no Editor SQL do Supabase:
+
+#### Tabela 'eventos'
+```sql
+create table public.eventos (
+  id uuid not null default gen_random_uuid (),
+  nome text not null,
+  data date not null,
+  descricao text not null,
+  cidade text not null,
+  estado text not null,
+  link text null,
+  created_at timestamp without time zone not null default now(),
+  updated_at timestamp without time zone null,
+  user_id uuid not null default gen_random_uuid (),
+  constraint eventos_pkey primary key (id)
+) TABLESPACE pg_default;
+
+create trigger update_eventos_updated_at BEFORE
+update on eventos for EACH row
+execute FUNCTION update_updated_at_column ();
+```
+
+#### Tabela 'profiles'
+```sql
+create table public.profiles (
+  id uuid not null,
+  name text not null,
+  created_at timestamp with time zone not null default now(),
+  updated_at timestamp with time zone not null default now(),
+  constraint profiles_pkey primary key (id),
+  constraint profiles_id_fkey foreign KEY (id) references auth.users (id) on delete CASCADE
+) TABLESPACE pg_default;
+
+create trigger update_profiles_updated_at BEFORE
+update on profiles for EACH row
+execute FUNCTION update_updated_at_column ();
+```
+
+> **Importante**: Certifique-se de que o arquivo `.env` está listado no `.gitignore` para não expor suas credenciais.
