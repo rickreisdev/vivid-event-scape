@@ -1,73 +1,45 @@
-# Welcome to your Lovable project
+# EventosBR
 
-## Project info
+## Sobre o Projeto
 
-**URL**: https://lovable.dev/projects/6f7a3e45-e08f-4ea5-a0a2-3447e3ee93da
+EventosBR é uma plataforma moderna para gerenciamento e descoberta de eventos. Este projeto foi desenvolvido como parte de um estudo prático sobre desenvolvimento de software utilizando ferramentas modernas de IA, como Lovable e as funcionalidades do Cursor, demonstrando a integração eficiente entre desenvolvimento tradicional e assistência por IA.
 
-## How can I edit this code?
+**Link do Projeto no Lovable**: https://lovable.dev/projects/6f7a3e45-e08f-4ea5-a0a2-3447e3ee93da
 
-There are several ways of editing your application.
+## Como Executar o Projeto Localmente
 
-**Use Lovable**
+Para trabalhar com o código localmente, você precisará ter Node.js & npm instalados - [instale usando nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/6f7a3e45-e08f-4ea5-a0a2-3447e3ee93da) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+Siga estes passos:
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Passo 1: Clone o repositório usando a URL do Git do projeto
+git clone <URL_DO_GIT>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Passo 2: Navegue até o diretório do projeto
+cd <NOME_DO_PROJETO>
 
-# Step 3: Install the necessary dependencies.
+# Passo 3: Instale as dependências necessárias
 npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Passo 4: Inicie o servidor de desenvolvimento com auto-reload e preview instantâneo
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Tecnologias Utilizadas
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Este projeto foi construído com as seguintes tecnologias e ferramentas:
 
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
+### Stack Principal
 - Vite
 - TypeScript
 - React
 - shadcn-ui
 - Tailwind CSS
+- Supabase (Autenticação e Banco de Dados)
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/6f7a3e45-e08f-4ea5-a0a2-3447e3ee93da) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+### Ferramentas de Desenvolvimento
+- Lovable (Desenvolvimento Assistido por IA)
+- Cursor (IDE)
+- ChatGPT
+- Claude (Engenharia de Prompts)
