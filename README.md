@@ -14,7 +14,7 @@ Siga estes passos:
 
 ```sh
 # Passo 1: Clone o repositório usando a URL do Git do projeto
-git clone <URL_DO_GIT>
+git clone <https://github.com/rickreisdev/vivid-event-scape>
 
 # Passo 2: Navegue até o diretório do projeto
 cd <NOME_DO_PROJETO>
