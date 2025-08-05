@@ -48,7 +48,7 @@ const EventDetail: React.FC<EventDetailProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto glass-effect border-white/20 m-4 max-w-[calc(100vw-2rem)]">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto glass-effect border-white/20">
         <DialogHeader className="space-y-4">
           <div className="flex items-start justify-between gap-4">
             <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900 flex-1 leading-tight">
