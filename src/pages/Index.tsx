@@ -27,7 +27,7 @@ const Index = () => {
   
 
   useEffect(() => {
-    document.title = 'EventosBR - Encontre os melhores eventos perto de você';
+    document.title = 'EventosBR - Encontre os melhores eventos por perto';
   }, []);
 
   const handleLogin = async (email: string, password: string) => {
