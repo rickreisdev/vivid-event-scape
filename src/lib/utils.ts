@@ -19,18 +19,26 @@ export function isValidExternalUrl(url: string): boolean {
       return false;
     }
 
-    // Lista de domínios permitidos (opcional)
-    const allowedDomains = [
-      'eventosbr.com',
-      'exemplo.com',
-      // Adicione outros domínios confiáveis aqui
+    // Verifica se o hostname não está vazio
+    if (!urlObj.hostname) {
+      return false;
+    }
+
+    // Verifica se não é um IP local ou privado (opcional, para maior segurança)
+    const privateIPs = [
+      /^127\./, // localhost
+      /^10\./, // 10.0.0.0/8
+      /^172\.(1[6-9]|2[0-9]|3[0-1])\./, // 172.16.0.0/12
+      /^192\.168\./, // 192.168.0.0/16
+      /^169\.254\./, // link-local
+      /^::1$/, // IPv6 localhost
+      /^fc00:/, // IPv6 unique local
+      /^fe80:/, // IPv6 link-local
     ];
 
-    // Se houver lista de domínios permitidos, verificar
-    if (allowedDomains.length > 0) {
-      return allowedDomains.some(domain =>
-        urlObj.hostname === domain || urlObj.hostname.endsWith(`.${domain}`)
-      );
+    const isPrivateIP = privateIPs.some(pattern => pattern.test(urlObj.hostname));
+    if (isPrivateIP) {
+      return false;
     }
 
     return true;
