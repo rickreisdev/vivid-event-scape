@@ -1,20 +1,20 @@
-
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { CreateEventData } from '@/types/event';
-import EventForm from '@/components/EventForm';
-import Navbar from '@/components/Navbar';
-import AuthModal from '@/components/AuthModal';
-import { useAuth } from '@/hooks/useAuth';
-import { useEvents } from '@/hooks/useEvents';
-import { useToast } from '@/hooks/use-toast';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { CreateEventData } from "@/types/event";
+import EventForm from "@/components/EventForm";
+import Navbar from "@/components/Navbar";
+import AuthModal from "@/components/AuthModal";
+import Footer from "@/components/Footer";
+import { useAuth } from "@/hooks/useAuth";
+import { useEvents } from "@/hooks/useEvents";
+import { useToast } from "@/hooks/use-toast";
 
 const NewEvent = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, profile, signIn, signUp, signOut } = useAuth();
   const { createEvent, isCreating } = useEvents();
-  
+
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   React.useEffect(() => {
@@ -30,7 +30,9 @@ const NewEvent = () => {
       setShowAuthModal(false);
       toast({
         title: "Login realizado com sucesso!",
-        description: `Bem-vindo de volta${profile?.name ? `, ${profile.name}` : ''}`,
+        description: `Bem-vindo de volta${
+          profile?.name ? `, ${profile.name}` : ""
+        }`,
       });
     } catch (error: any) {
       toast({
@@ -41,7 +43,11 @@ const NewEvent = () => {
     }
   };
 
-  const handleRegister = async (email: string, password: string, name: string) => {
+  const handleRegister = async (
+    email: string,
+    password: string,
+    name: string
+  ) => {
     try {
       await signUp(email, password, name);
       setShowAuthModal(false);
@@ -61,7 +67,7 @@ const NewEvent = () => {
   const handleLogout = async () => {
     try {
       await signOut();
-      navigate('/');
+      navigate("/");
       toast({
         title: "Logout realizado",
         description: "Você foi desconectado com sucesso",
@@ -77,29 +83,29 @@ const NewEvent = () => {
 
   const handleCreateEvent = async (eventData: CreateEventData) => {
     if (!user) return;
-    
+
     try {
       await createEvent(eventData);
-      navigate('/');
+      navigate("/");
     } catch (error) {
-      console.error('Erro ao criar evento:', error);
+      console.error("Erro ao criar evento:", error);
     }
   };
 
   const handleCancel = () => {
-    navigate('/');
+    navigate("/");
   };
 
   if (!user) {
     return (
-      <div className="min-h-screen">
-        <Navbar 
-          user={user} 
+      <div className="min-h-screen flex flex-col">
+        <Navbar
+          user={user}
           onLogout={handleLogout}
           onLoginClick={() => setShowAuthModal(true)}
         />
-        
-        <div className="pt-20 flex items-center justify-center min-h-screen">
+
+        <div className="pt-20 flex items-center justify-center flex-1">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
               Faça login para criar eventos
@@ -114,30 +120,34 @@ const NewEvent = () => {
           isOpen={showAuthModal}
           onClose={() => {
             setShowAuthModal(false);
-            navigate('/');
+            navigate("/");
           }}
           onLogin={handleLogin}
           onRegister={handleRegister}
           isLoading={false}
         />
+
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen">
-      <Navbar 
-        user={user} 
+    <div className="min-h-screen flex flex-col">
+      <Navbar
+        user={user}
         onLogout={handleLogout}
         onLoginClick={() => setShowAuthModal(true)}
       />
-      
+
       <EventForm
         onSubmit={handleCreateEvent}
         onCancel={handleCancel}
         isLoading={isCreating}
         title="Novo Evento"
       />
+
+      <Footer />
     </div>
   );
 };

@@ -1,17 +1,18 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Calendar, MapPin, User, LogIn, LogOut } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/useAuth';
-import { useEvents } from '@/hooks/useEvents';
-import { useToast } from '@/hooks/use-toast';
-import EventCard from '@/components/EventCard';
-import EventDetail from '@/components/EventDetail';
-import EventForm from '@/components/EventForm';
-import AuthModal from '@/components/AuthModal';
-import ConfirmDialog from '@/components/ConfirmDialog';
-import LoadingSpinner from '@/components/LoadingSpinner';
-import { Event, CreateEventData, UpdateEventData } from '@/types/event';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from "react";
+import { Plus, Calendar, MapPin, User, LogIn, LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import { useEvents } from "@/hooks/useEvents";
+import { useToast } from "@/hooks/use-toast";
+import EventCard from "@/components/EventCard";
+import EventDetail from "@/components/EventDetail";
+import EventForm from "@/components/EventForm";
+import AuthModal from "@/components/AuthModal";
+import ConfirmDialog from "@/components/ConfirmDialog";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import Footer from "@/components/Footer";
+import { Event, CreateEventData, UpdateEventData } from "@/types/event";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   const editFormRef = useRef<HTMLDivElement>(null);
@@ -23,11 +24,19 @@ const Index = () => {
 
   const { toast } = useToast();
   const { user, profile, signIn, signUp, signOut } = useAuth();
-  const { events, loading, createEvent, updateEvent, deleteEvent, isCreating, isUpdating, isDeleting } = useEvents();
-  
+  const {
+    events,
+    loading,
+    createEvent,
+    updateEvent,
+    deleteEvent,
+    isCreating,
+    isUpdating,
+    isDeleting,
+  } = useEvents();
 
   useEffect(() => {
-    document.title = 'EventosBR - Encontre os melhores eventos por perto';
+    document.title = "EventosBR - Encontre os melhores eventos por perto";
   }, []);
 
   const handleLogin = async (email: string, password: string) => {
@@ -36,7 +45,9 @@ const Index = () => {
       setShowAuthModal(false);
       toast({
         title: "Login realizado com sucesso!",
-        description: `Bem-vindo de volta${profile?.name ? `, ${profile.name}` : ''}`,
+        description: `Bem-vindo de volta${
+          profile?.name ? `, ${profile.name}` : ""
+        }`,
       });
     } catch (error: any) {
       toast({
@@ -47,7 +58,11 @@ const Index = () => {
     }
   };
 
-  const handleRegister = async (email: string, password: string, name: string) => {
+  const handleRegister = async (
+    email: string,
+    password: string,
+    name: string
+  ) => {
     try {
       await signUp(email, password, name);
       setShowAuthModal(false);
@@ -84,22 +99,25 @@ const Index = () => {
     setSelectedEvent(null);
     setEditingEvent(event);
     setTimeout(() => {
-      editFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      editFormRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
     }, 100);
   };
 
   const handleUpdateEvent = async (eventData: CreateEventData) => {
     if (!editingEvent) return;
-    
+
     try {
       const updateData: UpdateEventData = {
         id: editingEvent.id,
-        ...eventData
+        ...eventData,
       };
       await updateEvent(updateData);
       setEditingEvent(null);
     } catch (error) {
-      console.error('Erro ao atualizar evento:', error);
+      console.error("Erro ao atualizar evento:", error);
     }
   };
 
@@ -115,13 +133,13 @@ const Index = () => {
 
   const handleConfirmDelete = async () => {
     if (!eventToDelete) return;
-    
+
     try {
       await deleteEvent(eventToDelete.id);
       setShowDeleteDialog(false);
       setEventToDelete(null);
     } catch (error) {
-      console.error('Erro ao excluir evento:', error);
+      console.error("Erro ao excluir evento:", error);
     }
   };
 
@@ -135,7 +153,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen gradient-bg">
+    <div className="min-h-screen gradient-bg flex flex-col">
       {/* Header */}
       <header className="bg-white/10 backdrop-blur-md border-b border-white/10 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -146,7 +164,7 @@ const Index = () => {
                 EventosBR
               </h1>
             </div>
-            
+
             <div className="flex items-center space-x-2 sm:space-x-4">
               {user ? (
                 <>
@@ -154,7 +172,10 @@ const Index = () => {
                     Olá, {profile?.name || user.email}
                   </span>
                   <Link to="/novo-evento">
-                    <Button size="sm" className="event-gradient text-white hover:opacity-90 transition-opacity">
+                    <Button
+                      size="sm"
+                      className="event-gradient text-white hover:opacity-90 transition-opacity"
+                    >
                       <Plus className="h-4 w-4 mr-1 sm:mr-2" />
                       <span className="hidden sm:inline">Novo Evento</span>
                       <span className="sm:hidden">Novo</span>
@@ -187,7 +208,7 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden flex-1">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-24">
           <div className="text-center relative z-10">
             <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight drop-shadow-lg">
@@ -197,9 +218,10 @@ const Index = () => {
               </span>
             </h2>
             <p className="text-lg sm:text-xl text-gray-200 mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed px-4 drop-shadow-md">
-              Conecte-se com experiências únicas e encontre eventos que transformam momentos em memórias inesquecíveis!
+              Conecte-se com experiências únicas e encontre eventos que
+              transformam momentos em memórias inesquecíveis!
             </p>
-            
+
             {!user && (
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-4">
                 <Button
@@ -217,7 +239,7 @@ const Index = () => {
             )}
           </div>
         </div>
-        
+
         {/* Floating elements for visual appeal */}
         <div className="absolute top-20 left-10 w-20 h-20 bg-indigo-500/20 rounded-full blur-xl"></div>
         <div className="absolute bottom-20 right-10 w-32 h-32 bg-purple-500/20 rounded-full blur-xl"></div>
@@ -225,14 +247,15 @@ const Index = () => {
       </section>
 
       {/* Events Section */}
-      <section className="py-8 sm:py-16 relative z-10">
+      <section className="py-8 sm:py-16 relative z-10 flex-1">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8 sm:mb-12">
             <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3 sm:mb-4 drop-shadow-lg">
               Eventos em Destaque
             </h3>
             <p className="text-base sm:text-lg text-gray-200 max-w-2xl mx-auto drop-shadow-md">
-              Explore uma seleção cuidadosa de eventos que prometem experiências extraordinárias
+              Explore uma seleção cuidadosa de eventos que prometem experiências
+              extraordinárias
             </p>
           </div>
 
@@ -243,7 +266,8 @@ const Index = () => {
                 Nenhum evento encontrado
               </h4>
               <p className="text-gray-300 mb-6 sm:mb-8 max-w-md mx-auto px-4">
-                Seja o primeiro a compartilhar um evento incrível com nossa comunidade!
+                Seja o primeiro a compartilhar um evento incrível com nossa
+                comunidade!
               </p>
               {user && (
                 <Link to="/novo-evento">
@@ -314,6 +338,9 @@ const Index = () => {
         cancelText="Cancelar"
         isDestructive={true}
       />
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };
