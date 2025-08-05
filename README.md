@@ -31,6 +31,7 @@ npm run dev
 Este projeto foi construído com as seguintes tecnologias e ferramentas:
 
 ### Stack Principal
+
 - Vite
 - TypeScript
 - React
@@ -39,6 +40,7 @@ Este projeto foi construído com as seguintes tecnologias e ferramentas:
 - Supabase (Autenticação e Banco de Dados)
 
 ### Ferramentas de Desenvolvimento
+
 - Lovable (Desenvolvimento Assistido por IA)
 - Cursor (IDE)
 - ChatGPT
@@ -49,12 +51,14 @@ Este projeto foi construído com as seguintes tecnologias e ferramentas:
 ### Variáveis de Ambiente
 
 1. Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+
 ```env
 VITE_SUPABASE_URL=sua_url_do_projeto
 VITE_SUPABASE_ANON_KEY=sua_chave_anon
 ```
 
 Para obter estes valores:
+
 1. Acesse o painel do Supabase
 2. Navegue até Project Settings -> API
 3. Copie os valores de "Project URL" e "anon public" para as respectivas variáveis
@@ -64,6 +68,7 @@ Para obter estes valores:
 No Supabase, você precisará criar duas tabelas: `eventos` e `profiles`. Execute os seguintes comandos SQL no Editor SQL do Supabase:
 
 #### Tabela 'eventos'
+
 ```sql
 create table public.eventos (
   id uuid not null default gen_random_uuid (),
@@ -85,6 +90,7 @@ execute FUNCTION update_updated_at_column ();
 ```
 
 #### Tabela 'profiles'
+
 ```sql
 create table public.profiles (
   id uuid not null,
@@ -98,6 +104,79 @@ create table public.profiles (
 create trigger update_profiles_updated_at BEFORE
 update on profiles for EACH row
 execute FUNCTION update_updated_at_column ();
+```
+
+### Configuração da Autenticação com Supabase
+
+Além da configuração do banco de dados, você também precisará configurar a autenticação no Supabase:
+
+#### 1. Configurar URLs de Redirecionamento
+
+1. No painel do Supabase, vá para **Authentication** → **Settings**
+2. Em **Site URL**, adicione: `http://localhost:5173`
+3. Em **Redirect URLs**, adicione:
+   - `http://localhost:5173`
+   - `http://localhost:5173/auth/callback`
+4. Clique em **Save**
+
+#### 2. Configurar Políticas de Segurança (RLS)
+
+Após criar as tabelas, configure as políticas de segurança para controlar o acesso:
+
+**Para a tabela `eventos`:**
+
+```sql
+-- Habilitar RLS
+ALTER TABLE public.eventos ENABLE ROW LEVEL SECURITY;
+
+-- Política para permitir leitura pública
+CREATE POLICY "Permitir leitura pública de eventos" ON public.eventos
+FOR SELECT USING (true);
+
+-- Política para permitir inserção apenas para usuários autenticados
+CREATE POLICY "Permitir inserção para usuários autenticados" ON public.eventos
+FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Política para permitir atualização apenas para o criador do evento
+CREATE POLICY "Permitir atualização para criador do evento" ON public.eventos
+FOR UPDATE USING (auth.uid() = user_id);
+
+-- Política para permitir exclusão apenas para o criador do evento
+CREATE POLICY "Permitir exclusão para criador do evento" ON public.eventos
+FOR DELETE USING (auth.uid() = user_id);
+```
+
+**Para a tabela `profiles`:**
+
+```sql
+-- Habilitar RLS
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+-- Política para permitir leitura pública
+CREATE POLICY "Permitir leitura pública de perfis" ON public.profiles
+FOR SELECT USING (true);
+
+-- Política para permitir inserção apenas para o próprio usuário
+CREATE POLICY "Permitir inserção para próprio usuário" ON public.profiles
+FOR INSERT WITH CHECK (auth.uid() = id);
+
+-- Política para permitir atualização apenas para o próprio usuário
+CREATE POLICY "Permitir atualização para próprio usuário" ON public.profiles
+FOR UPDATE USING (auth.uid() = id);
+```
+
+#### 3. Criar Função de Atualização Automática
+
+Execute este SQL para criar a função que atualiza automaticamente o campo `updated_at`:
+
+```sql
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
 ```
 
 > **Importante**: Certifique-se de que o arquivo `.env` está listado no `.gitignore` para não expor suas credenciais.
