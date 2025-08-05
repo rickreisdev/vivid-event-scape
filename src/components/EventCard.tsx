@@ -1,9 +1,14 @@
-
-import React from 'react';
-import { Calendar, MapPin, ExternalLink, Edit, Trash2 } from 'lucide-react';
-import { Event } from '@/types/event';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import React from "react";
+import { Calendar, MapPin, ExternalLink, Edit, Trash2 } from "lucide-react";
+import { Event } from "@/types/event";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+import { openExternalUrl } from "@/lib/utils";
 
 interface EventCardProps {
   event: Event;
@@ -13,25 +18,25 @@ interface EventCardProps {
   canEdit?: boolean;
 }
 
-const EventCard: React.FC<EventCardProps> = ({ 
-  event, 
-  onView, 
-  onEdit, 
-  onDelete, 
-  canEdit = false 
+const EventCard: React.FC<EventCardProps> = ({
+  event,
+  onView,
+  onEdit,
+  onDelete,
+  canEdit = false,
 }) => {
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
+    return new Date(dateString).toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
     });
   };
 
   return (
     <Card className="event-card-hover cursor-pointer group overflow-hidden glass-effect border-white/20 h-full flex flex-col">
       <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-      
+
       <CardHeader className="relative flex-shrink-0">
         <div className="flex items-start justify-between gap-2">
           <h3 className="text-lg sm:text-xl font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors line-clamp-2 flex-1">
@@ -66,7 +71,7 @@ const EventCard: React.FC<EventCardProps> = ({
         </div>
       </CardHeader>
 
-      <CardContent 
+      <CardContent
         className="relative cursor-pointer flex-1"
         onClick={() => onView(event)}
       >
@@ -75,12 +80,14 @@ const EventCard: React.FC<EventCardProps> = ({
             <Calendar className="h-4 w-4 mr-2 text-indigo-500 flex-shrink-0" />
             <span className="text-sm">{formatDate(event.data)}</span>
           </div>
-          
+
           <div className="flex items-center text-gray-600">
             <MapPin className="h-4 w-4 mr-2 text-purple-500 flex-shrink-0" />
-            <span className="text-sm truncate">{event.cidade}, {event.estado}</span>
+            <span className="text-sm truncate">
+              {event.cidade}, {event.estado}
+            </span>
           </div>
-          
+
           <p className="text-gray-700 text-sm line-clamp-3 leading-relaxed">
             {event.descricao}
           </p>
@@ -89,22 +96,24 @@ const EventCard: React.FC<EventCardProps> = ({
 
       <CardFooter className="relative pt-4 flex-shrink-0">
         <div className="flex items-center justify-between w-full gap-2">
-          <Button 
+          <Button
             onClick={() => onView(event)}
-            variant="outline" 
+            variant="outline"
             size="sm"
             className="group-hover:border-indigo-300 group-hover:text-indigo-600 transition-colors flex-1 text-xs sm:text-sm"
           >
             Ver Detalhes
           </Button>
-          
+
           {event.link && (
             <Button
               variant="ghost"
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
-                window.open(event.link, '_blank');
+                openExternalUrl(event.link, () => {
+                  console.warn("Link não é seguro:", event.link);
+                });
               }}
               className="text-gray-500 hover:text-indigo-600 p-2 flex-shrink-0"
             >
